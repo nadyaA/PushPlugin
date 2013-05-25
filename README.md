@@ -109,12 +109,15 @@ Add the **PushNotification.js** script to your assets/www folder (or javascripts
 ## Manual Installation for WP8
 
 Copy the following files to your project's Commands folder and add it to the VS project 
+
 	PushPlugin.cs
 
 Add a reference to this plugin in config.xml
+
 	<plugin name="PushPlugin"/>
 
 Add the **PushNotification.js** script to your assets/www folder (or javascripts folder, wherever you want really) and reference it in your main index.html file.
+
     <script type="text/javascript" charset="utf-8" src="PushNotification.js"></script>
     
 ## Automatic Installation (not possible for WP8)
@@ -254,28 +257,31 @@ Also make note of the **payload** object. Since the Android notification data mo
 
 ##### wp8
 Register as 
-        	pushNotification = window.plugins.pushNotification;
-          	pushNotification.register(successHandler, errorHandler, {"channelName":"your_channel_name","ecb":"onNotification"});
+
+	pushNotification = window.plugins.pushNotification;
+	pushNotification.register(successHandler, errorHandler, {"channelName":"your_channel_name","ecb":"onNotification"});
           	
-    function successHandler(result) {
-		console.log('registered###' + result.uri);  
+	    function successHandler(result) {
+			console.log('registered###' + result.uri);  
 		// send uri to your notification server
-    }          	
+	    }          	
 
 onNotification is fired if the app is running when you receive the toast notification
-    function onNotification (e) {  
-	navigator.notification.alert(e.text2, function(){}, e.text1);
-    } 
+
+	    function onNotification (e) {  
+			navigator.notification.alert(e.text2, function(){}, e.text1);
+	    } 
     
-To control the launch page when the user click taps on your toast notification when the app is not running, add the following code to your mainpage.xaml.cs
+To control the launch page when the user taps on your toast notification when the app is not running, add the following code to your mainpage.xaml.cs
+
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             try
             {
-                if (this.NavigationContext.QueryString["NavigatedFrom"] == "toast")
+                if (this.NavigationContext.QueryString["NavigatedFrom"] == "toast") // this is set on the server
                 {
-                    this.PGView.StartPageUri = new Uri("//www/index.html#rem-page", UriKind.Relative);
+                    this.PGView.StartPageUri = new Uri("//www/index.html#notification-page", UriKind.Relative);
                 }
             }
             catch (KeyNotFoundException)
