@@ -1,4 +1,4 @@
-# Cordova Push Notifications Plugin for Android and iOS
+# Cordova Push Notifications Plugin for Android, iOS and WP8
 
 ---
 
@@ -106,7 +106,18 @@ Add the **PushNotification.js** script to your assets/www folder (or javascripts
 
     <script type="text/javascript" charset="utf-8" src="PushNotification.js"></script>
 
-## Automatic Installation
+## Manual Installation for WP8
+
+Copy the following files to your project's Commands folder and add it to the VS project 
+	PushPlugin.cs
+
+Add a reference to this plugin in config.xml
+	<plugin name="PushPlugin"/>
+
+Add the **PushNotification.js** script to your assets/www folder (or javascripts folder, wherever you want really) and reference it in your main index.html file.
+    <script type="text/javascript" charset="utf-8" src="PushNotification.js"></script>
+    
+## Automatic Installation (not possible for WP8)
 This plugin is based on [pluginstall](https://github.com/alunny/pluginstall). to install it to your app,
 simply execute pluginstall as follows;
 
@@ -240,7 +251,38 @@ In this example, be sure and substitute your own senderID. Get your senderID by 
 Looking at the above message handling code for Android, a few things bear explaination. Your app may receive a notification while it is active (INLINE). If you background the app by hitting the Home button on your device, you may later receive a status bar notification. Selecting that notification from the status will bring your app to the front and allow you to process the notification (BACKGROUND). Finally, should you completely exit the app by hitting the back button from the home page, you may still receive a notification. Touching that notification in the notification tray will relaunch your app and allow you to process the notification (COLDSTART). In this case the **coldstart** flag will be set on the incoming event. You can look at the **foreground** flag on the event to determine whether you are processing a background or an in-line notification. You may choose, for example to play a sound or show a dialog only for inline or coldstart notifications since the user has already been alerted via the status bar.
 
 Also make note of the **payload** object. Since the Android notification data model is much more flexible than that of iOS, there may be additional elements beyond **message**, **soundname**, and **msgcnt**. You can access those elements and any additional ones via the **payload** element. This means that if your data model should change in the future, there will be no need to change and recompile the plugin.
-	
+
+##### wp8
+Register as 
+        	pushNotification = window.plugins.pushNotification;
+          	pushNotification.register(successHandler, errorHandler, {"channelName":"your_channel_name","ecb":"onNotification"});
+          	
+    function successHandler(result) {
+		console.log('registered###' + result.uri);  
+		// send uri to your notification server
+    }          	
+
+onNotification is fired if the app is running when you receive the toast notification
+    function onNotification (e) {  
+	navigator.notification.alert(e.text2, function(){}, e.text1);
+    } 
+    
+To control the launch page when the user click taps on your toast notification when the app is not running, add the following code to your mainpage.xaml.cs
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            try
+            {
+                if (this.NavigationContext.QueryString["NavigatedFrom"] == "toast")
+                {
+                    this.PGView.StartPageUri = new Uri("//www/index.html#rem-page", UriKind.Relative);
+                }
+            }
+            catch (KeyNotFoundException)
+            {
+            }
+        }
+        
 #### unregister
 You will typically call this when your app is exiting, to cleanup any used resources. Its not strictly necessary to call it, and indeed it may be desireable to NOT call it if you are debugging your intermediarry push server. When you call unregister(), the current token for a particular device will get invalidated, and the next call to register() will return a new token. If you do NOT call unregister(), the last token will remain in effect until it is invalidated for some reason at the GCM side. Since such invalidations are beyond your control, its recommended that, in a production environment, that you have a matching unregister() call, for every call to register(), and that your server updates the devices' records each time.
 
