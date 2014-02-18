@@ -6,7 +6,9 @@
 
     <name>PushPlugin</name>
 
-	<asset src="www/PushNotification.js" target="PushNotification.js" />
+	<js-module src="www/PushNotification.js" name="PushNotification">
+		<clobbers target="PushNotification" />
+	</js-module>
 
 	<platform name="android">
         <config-file target="res/xml/config.xml" parent="plugins">
@@ -59,5 +61,21 @@
         <source-file src="AppDelegate+notification.m" />
         <source-file src="PushPlugin.h" />
         <source-file src="PushPlugin.m" />
+    </platform>
+
+	<!-- wp8 -->
+    <platform name="wp8">
+        <config-file target="config.xml" parent="/*">
+            <feature name="PushPlugin">
+				<param name="wp-package" value="PushPlugin" />
+			</feature>
+        </config-file>
+
+        <config-file target="Properties/WMAppManifest.xml" parent="/Deployment/App/Capabilities">
+            <Capability Name="ID_CAP_PUSH_NOTIFICATION" />
+        </config-file>
+
+        <source-file src="src/wp8/PushPlugin.cs" />
+		<source-file src="src/wp8/Newtonsoft.Json.dll" />
     </platform>
 </plugin>
